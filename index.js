@@ -168,27 +168,23 @@ function exportCredentials(params, useStepOutput){
   if (sessionToken) {
     core.setSecret(sessionToken);
     if (useStepOutput) {
+      console.log(`222222222222222222222222222222222222`);
       core.setOutput('aws-session-token', sessionToken);
     } else {
+      console.log(`333333333333333333333333333333`);
       core.exportVariable('AWS_SESSION_TOKEN', sessionToken);
     }
   } else if (process.env.AWS_SESSION_TOKEN) {
     // clear session token from previous credentials action
-    if (useStepOutput) {
-      core.setOutput('aws-session-token', '');
-    } else {
-      core.exportVariable('AWS_SESSION_TOKEN', '');
-    }
+    core.exportVariable('AWS_SESSION_TOKEN', '');
   }
 }
 
-function exportRegion(region, useStepOutput) {
-  if (!useStepOutput) {
-    // AWS_DEFAULT_REGION and AWS_REGION:
-    // Specifies the AWS Region to send requests to
-    core.exportVariable('AWS_DEFAULT_REGION', region);
-    core.exportVariable('AWS_REGION', region);
-  }
+function exportRegion(region) {
+  // AWS_DEFAULT_REGION and AWS_REGION:
+  // Specifies the AWS Region to send requests to
+  core.exportVariable('AWS_DEFAULT_REGION', region);
+  core.exportVariable('AWS_REGION', region);
 }
 
 async function exportAccountId(maskAccountId, region) {
@@ -293,13 +289,13 @@ async function run() {
     const roleSkipSessionTaggingInput = core.getInput('role-skip-session-tagging', { required: false })|| 'false';
     const roleSkipSessionTagging = roleSkipSessionTaggingInput.toLowerCase() === 'true';
     const webIdentityTokenFile = core.getInput('web-identity-token-file', { required: false });
-    const useStepOutput = core.getInput('use-step-output', { required: false }) || 'false';
+    const useStepOutput = (core.getInput('use-step-output', { required: false }) || 'false') === 'true';
 
     if (!region.match(REGION_REGEX)) {
       throw new Error(`Region is not valid: ${region}`);
     }
 
-    exportRegion(region, useStepOutput);
+    exportRegion(region);
 
     // This wraps the logic for deciding if we should rely on the GH OIDC provider since we may need to reference
     // the decision in a few differennt places. Consolidating it here makes the logic clearer elsewhere.
