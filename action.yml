@@ -54,15 +54,14 @@ inputs:
   use-step-output:
     description: 'When set, it will use step output instead of environment variables (default: false)'
     required: false
-    default: "false"
 outputs:
   aws-account-id:
     description: 'The AWS account ID for the provided credentials'
-  aws_access_key_id:
+  aws-access-key-id:
     description: 'AWS Access Key ID, result of the authentication process that happens in the action'
-  aws_secret_access_key:
+  aws-secret-access-key:
     description: 'AWS Secret Access Key, result of the authentication process that happens in the action'
-  aws_session_token:
+  aws-session-token:
     description: 'AWS Session Token, result of the authentication process that happens in the action'
 runs:
   using: 'node12'
