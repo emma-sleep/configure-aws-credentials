@@ -168,10 +168,8 @@ function exportCredentials(params, useStepOutput){
   if (sessionToken) {
     core.setSecret(sessionToken);
     if (useStepOutput) {
-      console.log(`222222222222222222222222222222222222`);
       core.setOutput('aws-session-token', sessionToken);
     } else {
-      console.log(`333333333333333333333333333333`);
       core.exportVariable('AWS_SESSION_TOKEN', sessionToken);
     }
   } else if (process.env.AWS_SESSION_TOKEN) {
@@ -187,9 +185,9 @@ function exportRegion(region) {
   core.exportVariable('AWS_REGION', region);
 }
 
-async function exportAccountId(maskAccountId, region) {
+async function exportAccountId(maskAccountId, region, credentials) {
   // Get the AWS account ID
-  const sts = getStsClient(region);
+  const sts = getStsClient(region, credentials);
   const identity = await sts.getCallerIdentity().promise();
   const accountId = identity.Account;
   if (!maskAccountId || maskAccountId.toLowerCase() == 'true') {
@@ -243,11 +241,12 @@ async function validateCredentials(expectedAccessKeyId) {
   }
 }
 
-function getStsClient(region) {
+function getStsClient(region, credentials) {
   return new aws.STS({
     region,
     stsRegionalEndpoints: 'regional',
-    customUserAgent: USER_AGENT
+    customUserAgent: USER_AGENT,
+    ...credentials
   });
 }
 
@@ -362,7 +361,7 @@ async function run() {
       if (!process.env.GITHUB_ACTIONS || accessKeyId) {
         await validateCredentials(roleCredentials.accessKeyId);
       }
-      await exportAccountId(maskAccountId, region);
+      await exportAccountId(maskAccountId, region, roleCredentials);
     }
   }
   catch (error) {
